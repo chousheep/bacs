@@ -1,0 +1,84 @@
+---
+title: "hw1.rmd"
+author: "Student ID:110071010"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Read customers.txt
+
+```{r}
+customers <- read.table("customers.txt", header = TRUE)
+ages <- customers$age
+```
+
+## 1. What is the 5th element in the original list of ages?
+
+```{r}
+# Find the fifth element of the ages vector after reading in the table
+ages[5]
+```
+
+## 2. What is the fifth lowest age?
+
+```{r}
+# Get the ages vector sorted in ascending order and find its fifth element
+sort(ages)[5]
+```
+
+## 3. Extract the five lowest ages together
+
+```{r}
+# Get the ages vector sorted in ascending order and employ slicing to get the first five elements
+sort(ages)[1:5]
+```
+
+## 4. Get the five highest ages by first sorting them in decreasing order first
+
+```{r}
+# Get the ages vector sorted in decreasing order first and employ slicing to get the first five elements
+sort(ages, decreasing = TRUE)[1:5]
+```
+
+## 5. What is the average (mean) age?
+
+```{r}
+# Use mean() to compute mean value
+mean(ages)
+```
+
+## 6. What is the standard deviation of ages?
+
+```{r}
+# Use sd() to compute standard deviation
+sd(ages)
+```
+
+## 7. Make a new variable called age_diff, with the difference between each age and the mean age
+
+```{r}
+# Store the difference in age_diff. Then use head() to show part of the resulting vector
+age_diff <- ages - mean(ages)
+head(age_diff)
+```
+
+## 8. What is the average "difference between each age and the mean age"?
+
+```{r}
+# Use mean() to figure out the average difference, but it does not yield a zero
+mean(age_diff)
+```
+
+## 9. Visualize the raw data as we did in class: (a) histogram (b) density plot (c) boxplot + stripchart
+
+```{r}
+# Use methods introduced in class to plot the required graphs
+# (a) histogram
+hist(ages)
+# (b) density plot
+plot(density(ages))
+# (c) boxplot + stripchart
+boxplot(ages, horizontal = TRUE)
+stripchart(ages, method = "stack", add = TRUE)
+```

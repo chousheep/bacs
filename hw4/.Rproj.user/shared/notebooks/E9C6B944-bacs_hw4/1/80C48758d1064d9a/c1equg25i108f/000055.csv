@@ -1,0 +1,3 @@
+"0","verizon <- read.csv('verizon.csv')"
+"0","sample_verizonrt <- verizon$Time"
+"0","plot(density(sample_verizonrt),main = ""Distribution of Verizon's Repair Times"", col=""blue"",lwd=2)"

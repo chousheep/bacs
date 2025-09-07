@@ -1,0 +1,362 @@
+knitr::opts_chunk$set(echo = TRUE)
+verizon <- read.csv('verizon.csv')
+View(verizon)
+verizon <- read.csv('verizon.csv')
+plot(density(verizon))
+verizon <- read.csv('verizon.csv')
+histo(verizon)
+verizon <- read.csv('verizon.csv')
+histo(verizon)
+verizon <- read.csv('verizon.csv')
+#histo(verizon)
+sum(1:5)
+verizon <- read.csv('verizon.csv')
+#histo(verizon)
+sum(1:5)
+verizon <- read.csv('verizon.csv')
+histo(verizon)
+verizon <- read.csv('verizon.csv')
+hist(verizon)
+verizon <- read.csv('verizon.csv')
+head(verizon)
+verizon <- read.csv('verizon.csv')
+str(verizon)
+verizon <- read.csv('verizon.csv')
+verizon$Time
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time))
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time))
+abline(v=mean(verizon$Time))
+?plot
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time), col="blue",lwd=2)
+abline(v=mean(verizon$Time))
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time),main = "Repair Times Distribution" col="blue",lwd=2)
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time),main = "Repair Times Distribution",col="blue",lwd=2)
+abline(v=mean(verizon$Time))
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time),main = "Repair Times Distribution", col="blue",lwd=2)
+hist(verizon$Time,main = "Repair Times Distribution", col="blue")
+abline(v=mean(verizon$Time))
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time),main = "Repair Times Distribution", col="blue",lwd=2)
+abline(v=mean(verizon$Time))
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time),main = "Repair Times Distribution", col="blue",lwd=2)
+abline(v=mean(verizon$Time), lwd=2)
+verizon <- read.csv('verizon.csv')
+plot(density(verizon$Time),main = "distribution of Verizon's repair times", col="blue",lwd=2)
+abline(v=mean(verizon$Time), lwd=2)
+mean(verizon)
+mean(verizon$Time)
+sample_size <- length(sample)
+sample_mean <- mean(sample)
+sample_sd <- sd(sample)
+verizon <- read.csv('verizon.csv')
+sample <- verizon$Time
+plot(density(sample),main = "distribution of Verizon's repair times", col="blue",lwd=2)
+abline(v=mean(sample), lwd=2)
+sample_size <- length(sample)
+sample_mean <- mean(sample)
+sample_sd <- sd(sample)
+verizon <- read.csv('verizon.csv')
+sample <- verizon$Time
+plot(density(sample),main = "Distribution of Verizon's Repair Times", col="blue",lwd=2)
+abline(v=mean(sample), lwd=2)
+mean <- mean(sample)
+sd <- sd(sample)
+se <- mean/sqrt(length(sample))
+ci99 <- mean + c(-2.58*se, 2.58*se)
+mean <- mean(sample)
+sd <- sd(sample)
+se <- mean/sqrt(length(sample))
+ci99 <- mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+t <- (sample-7.6)/se
+t <- (sample-7.6)/se
+t
+t <- (sample-7.6)/se
+df <- length(sample)-1
+t <- (sample-7.6)/se
+df <- length(sample)-1
+t
+t.test(sample,mu=7.6)
+?t.test
+t.test(x = sample,mu=7.6)
+t.test(x = resample,mu=7.6)
+knitr::opts_chunk$set(echo = TRUE)
+verizon <- read.csv('verizon.csv')
+resample <- verizon$Time
+plot(density(resample),main = "Distribution of Verizon's Repair Times", col="blue",lwd=2)
+abline(v=mean(resample), lwd=2)
+mean <- mean(resample)
+sd <- sd(resample)
+se <- mean/sqrt(length(resample))
+ci99 <- mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+t <- (resample-7.6)/se
+df <- length(resample)-1
+t
+t.test(x = resample,mu=7.6)
+hyp_mean <-
+t <- (resample-hyp_mean)/se
+hyp_mean <- 7.6
+t <- (resample-hyp_mean)/se
+df <- length(resample)-1
+p <- 1- pt(t,df)
+hyp_mean <- 7.6
+t <- (resample-hyp_mean)/se
+df <- length(resample)-1
+p <- 1- pt(t,df)
+p
+verizon <- read.csv('verizon.csv')
+resample <- verizon$Time
+plot(density(resample),main = "Distribution of Verizon's Repair Times", col="blue",lwd=2)
+abline(v=mean(resample), lwd=2)
+mean <- mean(resample)
+sd <- sd(resample)
+se <- mean/sqrt(length(resample))
+ci99 <- mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+hyp_mean <- 7.6
+t <- (resample-hyp_mean)/se
+df <- length(resample)-1
+p <- 1- pt(t,df)
+p
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- length(resample)-1
+p <- 1- pt(t,df)
+p
+t.test(x = resample,mu=7.6)
+t.test(x = resample, mu=7.6)
+t.test(x = resample, mu=7.6)
+mean
+t.test(x = resample, mu=7.6, conf.level = 0.99)
+t.test(x = resample, mu = 7.6, conf.level = 0.99)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1- pt(t,df)
+p
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1- pt(t,df)
+p
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+pt(t,df)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+1- pt(t,df)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+pt(t,df)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- round(1 - pt(t,df))
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+rount(p)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p)
+?round
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,5)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,0.0001)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p-4)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,-4)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,-5)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,-6)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+round(p,-10)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+p
+t.test(x = resample, mu = 7.6, conf.level = 0.99)
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+pt(t,df)
+knitr::opts_chunk$set(echo = TRUE)
+verizon <- read.csv('verizon.csv')
+sample <- verizon$Time
+plot(density(sample),main = "Distribution of Verizon's Repair Times", col="blue",lwd=2)
+abline(v=mean(sample), lwd=2)
+sample_size <- length(sample)
+mean <- mean(sample)
+sd <- sd(sample)
+se <- mean/sqrt(length(sample))
+ci99 <- mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+pt(t,df)
+t.test(x = sample, mu = 7.6, conf.level = 0.99)
+set.seed(1212333444)
+set.seed(1212333444)
+num_boot <- 2000
+sample_statistic <- function(stat_function, sample0){
+resample <-sample(sample0,length(sample0),replace=TRUE)
+stat_function(resample)
+}
+boot_sample_means <- replicate(num_boot,sample_statistic(mean,sample)
+plot(density(boot_sample_means),lwd=2,main="Bootstrapped Sample Means")
+set.seed(1212333444)
+num_boot <- 2000
+sample_statistic <- function(stat_function, sample0){
+resample <-sample(sample0,length(sample0),replace=TRUE)
+stat_function(resample)
+}
+boot_sample_means <- replicate(num_boot,sample_statistic(mean,sample))
+knitr::opts_chunk$set(echo = TRUE)
+verizon <- read.csv('verizon.csv')
+sample <- verizon$Time
+plot(density(sample),main = "Distribution of Verizon's Repair Times", col="blue",lwd=2)
+abline(v=mean(sample), lwd=2)
+sample_size <- length(sample)
+mean <- mean(sample)
+sd <- sd(sample)
+se <- mean/sqrt(length(sample))
+ci99 <- mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+hyp_mean <- 7.6
+t <- (mean - hyp_mean)/se
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+pt(t,df)
+t.test(x = sample, mu = 7.6, conf.level = 0.99)
+set.seed(1212333444)
+num_boot <- 2000
+sample_statistic <- function(stat_function, sample0){
+resample <-sample(sample0,length(sample0),replace=TRUE)
+stat_function(resample)
+}
+boot_sample_means <- replicate(num_boot,sample_statistic(mean,sample))
+sample_size <- length(sample)
+sample_mean <- mean(sample)
+standard_error <- sample_mean/sqrt(sample_size)
+ci99 <- mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+sample_size <- length(sample)
+sample_mean <- mean(sample)
+standard_error <- sample_mean/sqrt(sample_size)
+ci99 <- sample_mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", mean, "\n")
+cat("Standard Error:", se, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+sample_size <- length(sample)
+sample_mean <- mean(sample)
+standard_error <- sample_mean/sqrt(sample_size)
+ci99 <- sample_mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", sample_mean, "\n")
+cat("Standard Error:", standard_error, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+verizon <- read.csv('verizon.csv')
+sample_verizonrt <- verizon$Time
+plot(density(sample_verizonrt),main = "Distribution of Verizon's Repair Times", col="blue",lwd=2)
+abline(v=mean(sample_verizonrt), lwd=2)
+sample_size <- length(sample_verizonrt)
+sample_mean <- mean(sample_verizonrt)
+standard_error <- sample_mean/sqrt(sample_size)
+ci99 <- sample_mean + c(-2.58*se, 2.58*se)
+cat("Sample Mean:", sample_mean, "\n")
+cat("Standard Error:", standard_error, "\n")
+cat("99% Confidence Interval of the Sampling Means:",
+"\n","Lower Bound =", ci99[1], "\n",
+"Upper Bound =", ci99[2], "\n")
+hyp_mean <- 7.6
+t <- (sample_mean - hyp_mean)/standard_error
+df <- sample_size - 1
+p <- 1 - pt(t,df)
+pt(t,df)
+t.test(x = sample_verizonrt, mu = 7.6, conf.level = 0.99)
+set.seed(123123)
+num_boot <- 2000
+sample_statistic <- function(stat_function, sample0){
+resample <-sample(sample0,length(sample0),replace=TRUE)
+stat_function(resample)
+}
+boot_sample_means <- replicate(num_boot,sample_statistic(mean,sample))

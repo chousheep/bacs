@@ -1,0 +1,207 @@
+---
+title: "bacs_hw12"
+author: '110071010'
+date: "2024-05-11"
+output: word_document
+---
+
+**110034002** walked me through the parameters of the principal(), and i realizes that h2 stands for "commonality", u2 "uniqueness", and com "item complexity"
+
+**109048231** notified me that in Question 3e, the factor loadings themselves reflected the correlation-like relationship. And clearly, we got different meanings from the component (from 3 to 2 in Question 3 case) since the greater-than-0.7 loadings shifted significantly.
+
+# Question 1
+
+Earlier, we examined a dataset from a security survey sent to customers of e-commerce websites. However, we only used the “eigenvalue \> 1” criteria and the “elbow rule” on the screeplot to find a suitable number of components. Let’s perform a parallel analysis as well this week
+
+```{r, results="hold"}
+sq <- read.csv('security_questions.csv')
+pca_sq <- prcomp(sq, scale. = TRUE)
+summary(pca_sq)
+```
+
+## 1a
+
+Show a single visualization with scree plot of data, scree plot of simulated noise (use average eigenvalues of ≥ 100 noise samples), and a horizontal line showing the eigenvalue = 1 cutoff.
+
+```{r, results="hold"}
+set.seed(1111313131)
+
+sim_noise_ev <- function(n,p){
+  noise <- data.frame(replicate(p, rnorm(n)))
+  eigen(cor(noise))$values
+}
+evalues_noise <- replicate(100 ,sim_noise_ev(406,18))
+evalues_mean <- apply(evalues_noise,1,mean)
+
+
+# Plotting
+screeplot(pca_sq, col= "cornflowerblue", type = "lines", lwd = 2, main = "Eigenvalues: original data vs noise")
+lines(evalues_mean, type = "b",col = "darkgreen")
+abline(h = 1,col = "darkgray", lty = "dotted")
+
+legend("topright", legend=c("original data", "noise", "eigenvalue = 1"),
+       col=c("cornflowerblue", "darkgreen", "darkgray"), lty=c(1, 1, 2))
+```
+
+## 1b
+
+[**Question**]{.underline}
+
+How many dimensions would you retain if we used Parallel Analysis?
+
+[**Answer**]{.underline}
+
+As observed in the screeplot above, we should only **take PC1 and PC2**. Starting from PC3, the variances of the garbage data (noise) start surpassing those of the original data.
+
+# Question 2
+
+Earlier, we treated the underlying dimensions of the security dataset as composites and examined their eigenvectors (weights). Now, let’s treat them as factors and examine factor loadings (use the principal() method from the psych package)
+
+## 2a
+
+[**Question**]{.underline}
+
+Looking at the loadings of the first 3 principal components, to which components does each item seem to best belong?
+
+```{r, results="hold"}
+sq <- read.csv('security_questions.csv')
+library(psych)
+sq_principal <- principal(sq, nfactor = 3, rotate= "none", scores = TRUE)
+sq_principal$loadings[,1:3]
+```
+
+[**Answer**]{.underline}
+
+The first principal component
+
+## 2b
+
+[**Question**]{.underline}
+
+How much of the total variance of the security dataset do the first 3 PCs capture?
+
+```{r, results="hold"}
+sq_principal$loadings
+```
+
+[**Answer**]{.underline}
+
+PC1: 0.517 PC2: 0.089 PC3: 0.064 (individual)
+
+0.670 (cumulative)
+
+## 2c
+
+[**Question**]{.underline}
+
+Looking at commonality and uniqueness, which items are less than adequately explained by the first 3 principal components?
+
+```{r, results="hold"}
+sq_principal$communality 
+```
+
+[**Answer**]{.underline}
+
+Commonality (h2) + uniqueness(u2) =1 , and high uniqueness(u2) means data being less explained. It is known that the first three PCs capture 0.67 of total variance, and items whose commonality is less than 0.67 is exactly what we are looking for: Q2, 3, 6, 7, 9, 11, 13, 15, 16, 18.
+
+## 2d
+
+[**Question**]{.underline}
+
+How many measurement items share similar loadings between 2 or more components?
+
+```{r, results="hold"}
+sq_principal$complexity
+```
+
+[**Answer**]{.underline}
+
+It can be seen that Q4, 12, 17 have their item complexity value greater than 2.
+
+## 2e
+
+[**Question**]{.underline}
+
+Can you interpret a ‘meaning’ behind the first principal component from the items that load best upon it? (see the wording of the questions of those items)
+
+[**Answer**]{.underline}
+
+The patterns looks no clear for interpretation, but my guess is that the first principal component vaguely captures "confidentiality"
+
+# Question 3
+
+To improve interpretability of loadings, let’s rotate our principal component axes using the varimax technique to get rotated components (extract and rotate only three principal components)
+
+## 3a
+
+[**Question**]{.underline}
+
+Individually, does each rotated component (RC) explain the same, or different, amount of variance than the corresponding principal components (PCs)?
+
+[**Answer**]{.underline}
+
+Different.
+
+PC1 = 0.517 , RC1 = 0.312
+
+PC2 = 0.089 , RC2 = 0.164
+
+PC3 = 0.064 , RC3 = 0.194
+
+```{r, results="hold"}
+sq_pca_rot <- principal(sq, nfactor = 3, rotate = "varimax", scores = TRUE)
+sq_pca_rot$loadings
+```
+
+## 3b
+
+[**Question**]{.underline}
+
+Together, do the three rotated components explain the same, more, or less cumulative variance as the three principal components combined?
+
+[**Answer**]{.underline}
+
+The same. Proven by the fact that cumulative variance = 0.67.
+
+## 3c
+
+[**Question**]{.underline}
+
+Looking back at the items that shared similar loadings with multiple principal components (#2d), do those items have more clearly differentiated loadings among rotated components?
+
+[**Answer**]{.underline}
+
+Yes.
+
+```{r, results="hold"}
+sq_pca_rot$loadings
+```
+
+## 3d
+
+[**Question**]{.underline}
+
+Can you now more easily interpret the “meaning” of the 3 rotated components from the items that load best upon each of them? (see the wording of the questions of those items)
+
+[**Answer**]{.underline}
+
+RC1: Q7, Q9, Q11, Q14, Q16 –\> "personal information"
+
+RC2: Q4,Q12,Q17 –\> "evidence showing the transaction is not denied"
+
+RC3: Q5,Q8,Q10 –\> "authenticity & user-to-website security"
+
+## 3e
+
+[**Question**]{.underline}
+
+If we reduced the number of extracted and rotated components to 2, does the meaning of our rotated components change?
+
+[**Answer**]{.underline}
+
+Yes. It can be observed that both RC1 and RC2 (column) have different questions (row) yield correlations greater than 0.7, so the underlying meanings might have changed.
+
+```{r, results="hold"}
+sq_pca_rot <- principal(sq, nfactor = 2, rotate = "varimax", scores = TRUE)
+sq_pca_rot$loadings
+```

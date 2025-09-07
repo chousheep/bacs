@@ -1,0 +1,382 @@
+---
+title: "bacs_hw15"
+author: '110071010'
+date: "2024-05-28"
+output: word_document
+---
+
+# Setup
+
+```{r, results="hold"}
+insurance <- read.csv("insurance.csv", header=TRUE, na.strings = "?")
+names(insurance) <- c("age", "sex", "bmi", "children", "smoker", "region", "charges")
+head(insurance)
+```
+
+# Question 1
+
+Create some explanatory models to learn more about charges
+
+## 1a
+
+[**Instruction**]{.underline}
+
+Create an OLS regression model and report which factors are significantly related to charges
+
+```{r, results="hold"}
+ols <- lm(charges ~ age + factor(sex) + bmi + children 
+                    + factor(smoker) + factor(region), data = insurance)
+
+summary(ols)
+```
+
+[**Answer**]{.underline}
+
+The significant factors related to insurance charges are : **age, bmi, children, factor(smoker)yes, factor(region)southeast, and factor(region)southwest.**
+
+## 1b
+
+Create a decision tree (specifically, a regression tree) with default parameters to rpart().
+
+```{r, results="hold"}
+library(rpart)
+library(rpart.plot)
+tree <- rpart(charges ~ age + factor(sex) + bmi + children 
+                    + factor(smoker) + factor(region), data = insurance)
+```
+
+### i
+
+Plot a visual representation of the tree structure
+
+```{r, results="hold"}
+rpart.plot(tree)
+```
+
+### ii
+
+[**Question**]{.underline}
+
+How deep is the tree ? (see nodes with “decisions” – ignore the leaves at the bottom)
+
+[**Answer**]{.underline}
+
+2
+
+### iii
+
+How many leaf groups does it suggest to bin the data into?
+
+```{r, results="hold"}
+sum(tree$frame$var == "<leaf>")
+```
+
+### iv
+
+What conditions (combination of decisions) describe each leaf group?
+
+[**Answer**]{.underline}
+
+1) smoker == yes & age \< 43
+
+2) smoker == yes & age \>= 43
+
+3) smoker == no & bmi \< 30
+
+4) smoker == no & bmi \>= 30
+
+# Question 2
+
+Let’s use LOOCV to see how how our models perform predictively overall
+
+```{r, results="hold"}
+fold_i_pe <- function(i, k, model, dataset, outcome) {
+  folds <- cut(1:nrow(dataset), breaks=k, labels=FALSE)
+  test_indices <- which(folds==i)
+  test_set <- dataset[test_indices, ]
+  train_set <- dataset[-test_indices, ]
+  trained_model <- update(model, data = train_set)
+  predictions <- predict(trained_model, test_set)
+  dataset[test_indices, outcome] - predictions
+}
+
+# Run LOOCV
+loocv_rmse <- function(model, dataset, outcome, k=nrow(dataset)) {
+  shuffled_indices <- sample(1:nrow(dataset))
+  dataset <- dataset[shuffled_indices,]
+  fold_pred_errors <- sapply(1:k, \(kth) {
+    fold_i_pe(kth, k, model, dataset, outcome)
+  })
+  pred_errors <- unlist(fold_pred_errors)
+  rmse(pred_errors)
+}
+
+rmse <- function(errors) {
+  sqrt(mean(errors^2))
+}
+```
+
+## 2a
+
+What is the RMSEout for the OLS regression model?
+
+```{r, results="hold"}
+loocv_rmse(model = ols,dataset = insurance,outcome = "charges",k=nrow(insurance))
+```
+
+## 2b
+
+What is the RMSEout for the decision tree model?
+
+```{r, results="hold"}
+loocv_rmse(model = tree,dataset = insurance,outcome = "charges",k=nrow(insurance))
+```
+
+## Moving onto bagging and boosting, we will only use split-sample testing to save time: partition the data to create training and test sets using an 80:20 split. Use the regression model and decision tree you created earlier for bagging and boosting.
+
+# Question 3
+
+Let’s see if bagging helps our models
+
+## 3a
+
+Implement the bagged_learn(…) and bagged_predict(…) functions.
+
+```{r, results="hold"}
+bagged_learn <- function(model, dataset, b=100) {
+  lapply(1:b, \(i) {
+  n = nrow(dataset)
+  train_set <- dataset[sample(1:n,n,replace = TRUE),]
+  update(model,data = train_set)
+  })
+}
+
+bagged_predict <- function(bagged_models, new_data) {
+  predictions <- lapply(bagged_models,\(model){
+    predict(model, new_data)
+  })# get b predictions of new_data
+as.data.frame(predictions) |> apply(X = _,1,mean) # apply a mean over the columns of predictions
+}
+
+rmse_out <- function(actuals, preds){
+  sqrt(mean((actuals - preds)^2))
+}
+```
+
+## 3b
+
+What is the RMSEout for the bagged OLS regression?
+
+```{r, results="hold"}
+train_indices <- sample(1:nrow(insurance),size = 0.80*nrow(insurance))
+train_set <-insurance[train_indices,]
+test_set <- insurance[-train_indices,]
+
+bagged_models <- bagged_learn(ols, train_set, b =100)
+bagged_predictions_via_ols <- bagged_predict(bagged_models, new_data = test_set)
+rmse_out(actuals= test_set$charges, preds = bagged_predictions_via_ols)
+```
+
+## 3c
+
+What is the RMSEout for the bagged decision tree?
+
+```{r, results="hold"}
+train_indices <- sample(1:nrow(insurance),size = 0.80*nrow(insurance))
+train_set <-insurance[train_indices,]
+test_set <- insurance[-train_indices,]
+
+bagged_models <- bagged_learn(tree, train_set, b =100)
+bagged_predictions_via_tree <- bagged_predict(bagged_models, new_data = test_set)
+rmse_out(actuals= test_set$charges, preds = bagged_predictions_via_tree)
+```
+
+# Question 4
+
+Let’s see if boosting helps our models. You can use a learning rate of 0.1 and adjust it if you find a better rate.
+
+## 4a
+
+Write boosted_learn(…) and boosted_predict(…) functions.
+
+```{r, results="hold"}
+boosted_learn <- function(model, dataset, outcome, n=100, rate=0.1) {
+  # Extract predictor variables
+  predictors <- dataset[, setdiff(names(dataset), outcome)]
+  
+  # Initialize residuals with the actual outcome values
+  res <- dataset[outcome]
+  models <- list()
+  
+  # Iteratively train models on the residuals
+  for (i in 1:n) {
+    this_model <- update(model, data = cbind(residual=res, predictors))
+    models[[i]] <- this_model
+    predictions <- predict(this_model, newdata = dataset)
+    res <- res - rate * predictions
+  }
+  list(models=models, rate=rate)
+}
+
+boosted_predict <- function(boosted_learning, new_data) {
+  boosted_models <- boosted_learning$models
+  rate <- boosted_learning$rate
+  
+  # Get predictions of new_data from each model
+  predictions <- lapply(boosted_models, function(model) {
+    predict(model, newdata = new_data)
+  })
+  
+  # Convert list of predictions to data frame and remove row names
+  pred_frame <- as.data.frame(predictions) |> unname()
+  
+  # Apply a sum over the columns of predictions, weighted by learning rate
+  apply(pred_frame, 1, function(row) sum(row) * rate)
+}
+```
+
+## 4b
+
+What is the RMSEout for the boosted OLS regression?
+
+```{r, results="hold"}
+train_indices <- sample(1:nrow(insurance),size = 0.80*nrow(insurance))
+train_set <-insurance[train_indices,]
+test_set <- insurance[-train_indices,]
+
+boosted_models <- boosted_learn(ols, train_set, outcome = "charges")
+boosted_predictions_via_ols <- boosted_predict(boosted_models, new_data = test_set)
+rmse_out(actuals= test_set$charges, preds = boosted_predictions_via_ols)
+```
+
+## 4c
+
+What is the RMSEout for the boosted decision tree?
+
+```{r, results="hold"}
+train_indices <- sample(1:nrow(insurance),size = 0.80*nrow(insurance))
+train_set <-insurance[train_indices,]
+test_set <- insurance[-train_indices,]
+
+boosted_models <- boosted_learn(tree, train_set, outcome = "charges")
+boosted_predictions_via_tree <- boosted_predict(boosted_models, new_data = test_set)
+rmse_out(actuals= test_set$charges, preds = boosted_predictions_via_tree)
+```
+
+# Question 5
+
+Let’s engineer the best predictive decision trees. Let’s repeat the bagging and boosting of the decision tree several times to see if we can improve their performance. But this time, split the data 70:15:15 — use 70% as the training set, 15% as the validation set, and use the last 15% as the test set to obtain the final RMSEout.
+
+## 5a
+
+Repeat the bagging of the decision tree, using a base tree of maximum depth 1, 2, … n, keep training on the 70% training set, while the RMSEout of your 15% validation set keeps dropping; stop when the RMSEout has started increasing again (show prediction error at each depth). When you have identified the best maximum depth from the validation set, report the final RMSEout using the final 15% test set data.
+
+```{r, results="hold"}
+set.seed(111555777)
+indices <- sample(1:nrow(insurance))
+train_indices <- indices[1:round(0.7 * length(indices))]
+validation_indices <- indices[(round(0.7 * length(indices)) + 1):round(0.85 * length(indices))]
+test_indices <- indices[(round(0.85 * length(indices)) + 1):length(indices)]
+
+train_set <- insurance[train_indices, ]
+validation_set <- insurance[validation_indices, ]
+test_set <- insurance[test_indices, ]
+
+# Bagged learning function with depth control
+bagged_learn_with_depth <- function(model, dataset, b=100, maxdepth) {
+  lapply(1:b, function(i) {
+    n <- nrow(dataset)
+    train_set <- dataset[sample(1:n, n, replace = TRUE), ]
+    rpart(charges ~ ., data = train_set, control = rpart.control(maxdepth = maxdepth))
+  })
+}
+
+# Bagged predict function
+bagged_predict <- function(bagged_models, new_data) {
+  predictions <- lapply(bagged_models, function(model) {
+    predict(model, new_data)
+  })
+  pred_frame <- as.data.frame(predictions)
+  apply(pred_frame, 1, mean)
+}
+
+# RMSE calculation function
+rmse_out <- function(actuals, preds) {
+  sqrt(mean((actuals - preds)^2))
+}
+
+# Evaluate different depths
+depths <- 1:10
+validation_errors <- sapply(depths, function(depth) {
+  bagged_models <- bagged_learn_with_depth(tree, train_set, b=100, maxdepth=depth)
+  predictions <- bagged_predict(bagged_models, validation_set)
+  error <- rmse_out(actuals = validation_set$charges, preds = predictions)
+  cat("Depth:", depth, "- RMSE:", error, "\n")
+  error
+})
+
+best_depth <- depths[which.min(validation_errors)]
+cat("Best depth:", best_depth, "\n")
+
+# Train final model and evaluate on test set
+combined_train_val_set <- rbind(train_set, validation_set)
+final_bagged_models <- bagged_learn_with_depth(tree, combined_train_val_set, b=100, maxdepth=best_depth)
+final_predictions <- bagged_predict(final_bagged_models, test_set)
+final_rmse <- rmse_out(actuals = test_set$charges, preds = final_predictions)
+cat("Final RSME:", final_rmse)
+```
+
+## 5b
+
+Let’s find the best set of max tree depth and learning rate for boosting the decision tree: Use tree stumps of differing maximum depth (e.g., try intervals between 1 – 5) and differing learning rates (e.g., try regular intervals from 0.01 to 0.20). For each combination of maximum depth and learning rate, train on the 70% training set while and use the 15% validation set to compute RMSEout. When you have tried all your combinations, identify the best combination of maximum depth and learning rate from the validation set, but report the final RMSEout using the final 15% test set data.
+
+```{r, results="hold"}
+# Split the data into training (70%), validation (15%), and test (15%) sets
+set.seed(111555777)
+indices <- sample(1:nrow(insurance))
+train_indices <- indices[1:round(0.7 * length(indices))]
+validation_indices <- indices[(round(0.7 * length(indices)) + 1):round(0.85 * length(indices))]
+test_indices <- indices[(round(0.85 * length(indices)) + 1):length(indices)]
+
+train_set <- insurance[train_indices, ]
+validation_set <- insurance[validation_indices, ]
+test_set <- insurance[test_indices, ]
+
+# Parameters for depth and learning rates to try
+depths <- 1:5
+learning_rates <- seq(0.01, 0.20, by=0.01)
+
+# Initialize variables to store the best parameters and the lowest RMSE
+best_rmse <- Inf
+best_depth <- NULL
+best_learning_rate <- NULL
+
+# Evaluate different depths and learning rates without creating a grid
+for (depth in depths) {
+  for (learning_rate in learning_rates) {
+    boosted_models <- boosted_learn(rpart(charges ~ ., data=train_set, control=rpart.control(maxdepth=depth)), train_set, outcome = "charges", n = 100, rate = learning_rate)
+    predictions <- boosted_predict(boosted_models, validation_set)
+    current_rmse <- rmse_out(actuals = validation_set$charges, preds = predictions)
+    cat("Depth:",depth, "- Learning rate:", learning_rate, " - RMSE on validation set:", current_rmse, "\n" )
+    
+    if (current_rmse < best_rmse) {
+      best_rmse <- current_rmse
+      best_depth <- depth
+      best_learning_rate <- learning_rate
+    }
+  }
+}
+
+# Print the combination of depth and learning rate that generate least Rmse
+cat("The best-case scenario:","\n")
+cat("Depth", best_depth, "- Learning rate:", best_learning_rate, " - RMSE on validation set:", best_rmse, "\n")
+
+# Train final model with the best parameters
+combined_train_val_set <- rbind(train_set, validation_set)
+final_boosted_models <- boosted_learn(rpart(charges ~ ., data=combined_train_val_set, control=rpart.control(maxdepth=best_depth)), combined_train_val_set, outcome = "charges", n = 100, rate = best_learning_rate)
+final_predictions <- boosted_predict(final_boosted_models, test_set)
+
+# Calculate RMSE on the test set
+final_rmse <- rmse_out(actuals = test_set$charges, preds = final_predictions)
+cat("Final RMSE:", final_rmse)
+```
